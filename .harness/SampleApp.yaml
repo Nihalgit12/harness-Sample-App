@@ -21,20 +21,22 @@ pipeline:
             enabled: true
           buildIntelligence:
             enabled: true
-          platform:
-            os: Linux
-            arch: Amd64
-          runtime:
-            type: Docker
-            spec: {}
           execution:
             steps:
               - step:
                   type: Run
-                  name: Download_maven
+                  name: Download maven
                   identifier: Download_maven
                   spec:
+                    connectorRef: account.harnessImage
+                    image: maven
                     shell: Sh
-                    command: |-
-                      wget https://dlcdn.apache.org/maven/maven-3/3.9.2/binaries/apache-maven-3.9.2-bin.tar.gz
-                      tar -xvf apache-maven-3.9.2-bin.tar.gz
+                    command: mvn clean deploy -Dmaven.test.skip=true
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: K8s_Connector
+              namespace: default
+              automountServiceAccountToken: true
+              nodeSelector: {}
+              os: Linux
